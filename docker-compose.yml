@@ -1,0 +1,69 @@
+# docker-compose.yml文件的版本
+version: "3"
+# 管理的服务
+services:
+  #######################################################
+  # mysql
+  #######################################################
+  # mysql:
+  #   #env_file:
+  #   #  - .env
+  #   container_name: workspace_mysql
+  #   image: ${MYSQL_VERSION}
+  #   ports:
+  #     - 3306:3306
+  #   #networks:
+  #   #  - lnmp
+  #   volumes:
+  #     - ${MYSQL_DIR}/data:/var/lib/mysql
+  #     - ${MYSQL_DIR}/conf.d:/etc/mysql/conf.d
+  #   restart: always
+  #   # container内的root只是外部的一个普通用户权限
+  #   privileged: true
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=passw0rd
+  #######################################################
+  # nginx
+  #######################################################
+  nginx:
+    container_name: workspace_nginx
+    image: ${NGINX_VERSION}
+    ports:
+      #- 8080:80
+      - 80:80
+      - 443:443
+    volumes:
+      - ${NGINX_DIR}/nginx.conf:/etc/nginx/nginx.conf
+      - ${NGINX_DIR}/conf.d:/etc/nginx/conf.d
+      - ${NGINX_DIR}/log:/var/log/nginx
+      - ${NGINX_DIR}/html:/etc/nginx/html
+      #- /etc/letsencrypt:/etc/letsencrypt
+    restart: always
+    privileged: true
+    depends_on:
+      - jenkins
+    networks:
+      - workspace_net
+    #links:
+    # - jenkins  #配置容器link名，可理解为别名  直接使用jenkins+ 端口访问
+
+    #external_links:
+    #  - jenkins
+  #######################################################
+  # jenkins
+  #######################################################
+  jenkins:
+    container_name: workspace_jenkins
+    image: ${JENKINS_VERSION}
+    ports:
+      - 50001:8080
+      - 50000:50000
+    volumes:
+      - ${JENKINS_DIR}/jenkins_home:/var/jenkins_home
+    restart: always
+    privileged: true
+    networks:
+      - workspace_net
+networks:
+  workspace_net:
+    driver: bridge

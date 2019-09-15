@@ -1,0 +1,4 @@
+/jenkins/*
+/mysql/*
+/nginx/html/*
+/nginx/log/*
